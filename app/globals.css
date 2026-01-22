@@ -3,6 +3,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  /* NeuroLensAI Color System */
+  --color-bg: #eeeeee;
+  --color-accent: #00adb5;
+  --color-dark: #222831;
+  --color-secondary-text: #393e46;
+
+  /* Responsive Font Sizes */
+  --font-size-overline: clamp(0.625rem, 2vw, 0.875rem);
+  --font-size-heading: clamp(2rem, 12vw, 9rem);
+  --font-size-tagline: clamp(1rem, 6vw, 5rem);
+  --font-size-body: clamp(0.875rem, 2vw, 1.25rem);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -119,7 +133,73 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    background-color: var(--color-bg);
+    color: var(--color-dark);
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-dark);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    color: var(--color-secondary-text);
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  /* Smooth transitions */
+  button,
+  a {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Responsive breakpoints for better scaling */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1024px) {
+    body {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      font-size: 18px;
+    }
+  }
+
+  /* Ultra-wide screens (TV/4K) */
+  @media (min-width: 1920px) {
+    body {
+      font-size: 20px;
+    }
   }
 }
