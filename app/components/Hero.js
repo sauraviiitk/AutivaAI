@@ -134,12 +134,14 @@ export default function Hero() {
               ref={ctasRef}
               className="flex flex-col xs:flex-col sm:flex-row gap-3 xs:gap-3 sm:gap-4 items-stretch xs:items-start sm:items-center"
             >
-              <Button
-                size="lg"
-                className="bg-[var(--color-accent)]/80 hover:bg-[var(--color-accent)] text-white font-bold px-6 xs:px-7 sm:px-8 py-3 xs:py-3.5 sm:py-6 text-xs xs:text-sm sm:text-base rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                Get Started
-              </Button>
+              <a href="/auth/login">
+                <Button
+                  size="lg"
+                  className="bg-[var(--color-accent)]/80 hover:bg-[var(--color-accent)] text-white font-bold px-6 xs:px-7 sm:px-8 py-3 xs:py-3.5 sm:py-6 text-xs xs:text-sm sm:text-base rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
+                >
+                  Get Started
+                </Button>
+              </a>
 
               <Button
                 size="lg"
