@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }) {
 
       <SidebarInset>
         {/* HEADER */}
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 sticky top-0 z-50 bg-background border border-b-1">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-4" />
 
@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex flex-1 flex-col gap-4 p-4">{children}</main>
+        <main className="flex flex-1 flex-col  ">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

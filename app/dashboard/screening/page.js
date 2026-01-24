@@ -3,7 +3,15 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, Camera, Video, ChevronRight } from "lucide-react";
+import {
+  Upload,
+  Camera,
+  Video,
+  ChevronRight,
+  ChevronLeft,
+  LogOut,
+} from "lucide-react";
+import ScreeningHero from "@/app/components/ScreeningHero";
 import clsx from "clsx";
 
 const steps = [
@@ -24,12 +32,14 @@ const steps = [
     id: 3,
     title: "EEG Upload",
     instruction:
-      "Upload the EEG CSV file provided by the clinician or lab device.",
+      "Upload the EEG CSV file provided by the clinician or lab device. \n\nNote: Only .csv files are accepted. Please ensure the file is complete and unmodified.",
   },
 ];
 
 export default function ScreeningPage() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  //photo
   const [photoBlob, setPhotoBlob] = useState(null);
   const [photoURL, setPhotoURL] = useState(null);
   const fileInputRef = useRef(null);
@@ -50,6 +60,10 @@ export default function ScreeningPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(10);
   const recordingTimerRef = useRef(null);
+
+  //eeg
+  const [eegFile, setEegFile] = useState(null);
+  const eegInputRef = useRef(null);
 
   useEffect(() => {
     if (videoRef.current && stream) {
@@ -230,6 +244,18 @@ export default function ScreeningPage() {
     // stopVideoCamera();
   }
 
+  //eeg
+  function handleEEGUpload(file) {
+    if (!file) return;
+
+    if (!file.name.endsWith(".csv")) {
+      alert("Only CSV files are allowed");
+      return;
+    }
+
+    setEegFile(file);
+  }
+
   function handleVideoUpload(file) {
     if (!file) return;
     if (!file.type.startsWith("video/")) return;
@@ -262,57 +288,82 @@ export default function ScreeningPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] gap-6">
-      {/* LEFT PANEL */}
-      <aside className="w-80 flex flex-col gap-6">
-        <Card className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Screening Steps</h2>
+    <div className="flex min-h-[calc(100vh-4rem)] gap-6  ">
+      {currentStep === 0 && (
+        <>
+          {/* <div>
+            <Button
+              className={
+                "flex justify-center items-center bg-red-400 hover:bg-red-500"
+              }
+              onClick={() => {
+                setCurrentStep(currentStep + 1);
+              }}
+            >
+              <LogOut className="size-4"></LogOut>
+              Start Screening
+            </Button>
+          </div> */}
 
-          <div className="space-y-4">
-            {steps.map((step) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <div
-                  className={clsx(
-                    "h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium",
-                    step.id === currentStep && "bg-primary text-white",
-                    step.id < currentStep && "bg-green-500 text-white",
-                    step.id > currentStep && "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {step.id}
-                </div>
+          <ScreeningHero setCurrentStep={setCurrentStep}></ScreeningHero>
+        </>
+      )}
+      {currentStep >= 1 && (
+        <>
+          {/* LEFT PANEL */}
+          <aside className="w-80 flex flex-col gap-6 pl-2 py-4">
+            {/* Screenign Steps */}
+            <Card className="p-4">
+              <h2 className="text-lg font-semibold mb-4">Screening Steps</h2>
 
-                <span
-                  className={clsx(
-                    "text-sm",
-                    step.id === currentStep
-                      ? "font-semibold"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {step.title}
-                </span>
+              <div className="space-y-4">
+                {steps.map((step) => (
+                  <div key={step.id} className="flex items-center gap-3">
+                    <div
+                      className={clsx(
+                        "h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium",
+                        step.id === currentStep && "bg-primary text-white",
+                        step.id < currentStep && "bg-green-500/80 text-white",
+                        step.id > currentStep &&
+                          "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {step.id}
+                    </div>
+
+                    <span
+                      className={clsx(
+                        "text-sm",
+                        step.id === currentStep
+                          ? "font-semibold"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
+            </Card>
 
-        {/* Instructions Box */}
-        {!isCompleted && (
-          <Card className="p-4 text-sm text-muted-foreground whitespace-pre-line">
-            <h3 className="font-medium text-foreground mb-2 ">Instructions</h3>
-            {steps[currentStep - 1].instruction}
-          </Card>
-        )}
-      </aside>
+            {/* Instructions Box */}
+            {!isCompleted && (
+              <Card className="p-4 text-sm bg-muted/40 border border-border text-muted-foreground whitespace-pre-line">
+                <h3 className="font-medium text-foreground mb-1">
+                  Instructions
+                </h3>
+                {steps[currentStep - 1].instruction}
+              </Card>
+            )}
+          </aside>
 
-      {/* RIGHT PANEL */}
-      <main className="flex-1">
-        {!isCompleted ? (
-          <Card className="h-full flex flex-col items-center justify-center gap-6">
-            {currentStep === 1 && (
-              <>
-                {/* <div className="w-full h-full bg-emerald-400 grid grid-rows-3 grid-rows-[6fr_1fr_1fr]">
+          {/* RIGHT PANEL */}
+          <main className="flex-1 pr-2 py-4">
+            {!isCompleted ? (
+              <Card className="h-full flex flex-col items-center justify-center gap-6">
+                {currentStep === 1 && (
+                  <>
+                    {/* <div className="w-full h-full bg-emerald-400 grid grid-rows-3 grid-rows-[6fr_1fr_1fr]">
                   <div>
                     <Camera className="h-12 w-12 text-muted-foreground" />
                   </div>
@@ -329,211 +380,237 @@ export default function ScreeningPage() {
                   </div>
                 </div> */}
 
-                <div className="w-full h-full  grid grid-rows-[6fr_1fr] gap-4 p-4">
-                  {/* CAMERA / PREVIEW AREA */}
-                  <div className="flex items-center justify-center rounded-lg border bg-black overflow-hidden">
-                    {photoURL ? (
-                      <img
-                        src={photoURL}
-                        alt="Captured selfie"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : stream ? (
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex flex-col items-center justify-center gap-y-4">
-                        <Camera className="size-10 text-white"></Camera>
-                        <Button variant="outline" onClick={openCamera}>
-                          Open Camera
+                    <div className="w-full h-full  grid grid-rows-[6fr_1fr] gap-4 p-4">
+                      {/* CAMERA / PREVIEW AREA */}
+                      <div className="flex items-center justify-center rounded-lg border bg-black overflow-hidden">
+                        {photoURL ? (
+                          <img
+                            src={photoURL}
+                            alt="Captured selfie"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : stream ? (
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex flex-col items-center justify-center gap-y-4">
+                            <Camera className="size-10 text-white"></Camera>
+                            <Button variant="outline" onClick={openCamera}>
+                              Open Camera
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ACTIONS */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex gap-3">
+                          <Button
+                            className={
+                              "flex justify-center items-center bg-red-400 hover:bg-red-500"
+                            }
+                            onClick={() => {
+                              closeCamera();
+                              setCurrentStep(currentStep - 1);
+                            }}
+                          >
+                            <LogOut className="size-4"></LogOut>
+                            Exit
+                          </Button>
+
+                          {!photoURL && (
+                            <Button
+                              variant="outline"
+                              onClick={capturePhoto}
+                              disabled={!stream}
+                            >
+                              Capture
+                            </Button>
+                          )}
+
+                          {photoURL && (
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                // URL.revokeObjectURL(photoURL);
+                                // openCamera();
+                                setPhotoURL(null);
+                                setPhotoBlob(null);
+                              }}
+                            >
+                              Retake
+                            </Button>
+                          )}
+
+                          {stream && (
+                            <Button variant="outline" onClick={closeCamera}>
+                              Close Camera
+                            </Button>
+                          )}
+
+                          <label className="cursor-pointer">
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleFileUpload(file);
+
+                                // allow selecting same file again
+                                e.target.value = "";
+                              }}
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={(e) => {
+                                fileInputRef.current?.click();
+                              }}
+                            >
+                              Upload Image
+                            </Button>
+                          </label>
+                        </div>
+
+                        <Button
+                          onClick={() => setCurrentStep(2)}
+                          disabled={!photoURL}
+                        >
+                          Next <ChevronRight className="size-5"></ChevronRight>
                         </Button>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* ACTIONS */}
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex gap-3">
-                      {!photoURL && (
-                        <Button
-                          variant="outline"
-                          onClick={capturePhoto}
-                          disabled={!stream}
-                        >
-                          Capture
-                        </Button>
+                    {/* <Camera className="h-12 w-12 text-muted-foreground"/>
+                <p className="text-lg font-medium">Capture and Upload Selfie</p>
+                <Button onClick={() => setCurrentStep(2)}>Upload Selfie</Button> */}
+                  </>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="w-full h-full grid grid-rows-[6fr_1fr] gap-4 p-4">
+                    {/* VIDEO PREVIEW */}
+                    <div className="flex items-center justify-center rounded-lg border bg-black overflow-hidden">
+                      {videoURL ? (
+                        <video
+                          src={videoURL}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                      ) : videoStream ? (
+                        <video
+                          ref={videoPreviewRef}
+                          autoPlay
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-4 ">
+                          <Video className="size-10 text-white" />
+                          <Button variant="outline" onClick={openVideoCamera}>
+                            Open Camera
+                          </Button>
+                        </div>
                       )}
+                    </div>
 
-                      {photoURL && (
+                    {/* ACTIONS */}
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-3">
+                        {/* PREVIOUS BUTTON */}
                         <Button
-                          variant="outline"
+                          className={"flex justify-center items-center"}
                           onClick={() => {
-                            // URL.revokeObjectURL(photoURL);
-                            // openCamera();
-                            setPhotoURL(null);
-                            setPhotoBlob(null);
+                            stopVideoCamera();
+                            setCurrentStep(currentStep - 1);
                           }}
+                          disabled={isRecording}
                         >
-                          Retake
+                          <ChevronLeft className="size-4"></ChevronLeft>
+                          Previous
                         </Button>
-                      )}
 
-                      {stream && (
-                        <Button variant="outline" onClick={closeCamera}>
-                          Close Camera
-                        </Button>
-                      )}
+                        {/* RECORD BUTTON */}
+                        {!videoURL && videoStream && !isRecording && (
+                          <Button variant="outline" onClick={startRecording}>
+                            Record 10s
+                          </Button>
+                        )}
 
-                      <label className="cursor-pointer">
+                        {/* RECORDING STATE */}
+                        {isRecording && (
+                          <>
+                            <Button variant="destructive" disabled>
+                              ● Recording {recordingTime}s
+                            </Button>
+
+                            <Button variant="outline" onClick={exitRecording}>
+                              Exit Recording
+                            </Button>
+                          </>
+                        )}
+
+                        {/* RETAKE */}
+                        {videoURL && (
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              URL.revokeObjectURL(videoURL);
+                              setVideoURL(null);
+                              setVideoBlob(null);
+                            }}
+                          >
+                            Retake
+                          </Button>
+                        )}
+
+                        {/* CLOSE CAMERA */}
+                        {videoStream && !isRecording && (
+                          <Button variant="outline" onClick={stopVideoCamera}>
+                            Close Camera
+                          </Button>
+                        )}
+
+                        {/* UPLOAD VIDEO */}
                         <input
-                          ref={fileInputRef}
+                          ref={videoInputRef}
                           type="file"
-                          accept="image/*"
+                          accept="video/*"
                           hidden
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) handleFileUpload(file);
-
-                            // allow selecting same file again
+                            if (file) handleVideoUpload(file);
                             e.target.value = "";
                           }}
                         />
+
                         <Button
                           variant="outline"
-                          onClick={(e) => {
-                            fileInputRef.current?.click();
-                          }}
+                          onClick={() => videoInputRef.current?.click()}
+                          disabled={isRecording || videoStream}
                         >
-                          Upload Image
+                          Upload Video
                         </Button>
-                      </label>
-                    </div>
+                      </div>
 
-                    <Button
-                      onClick={() => setCurrentStep(2)}
-                      disabled={!photoURL}
-                    >
-                      Next <ChevronRight className="size-5"></ChevronRight>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* <Camera className="h-12 w-12 text-muted-foreground"/>
-                <p className="text-lg font-medium">Capture and Upload Selfie</p>
-                <Button onClick={() => setCurrentStep(2)}>Upload Selfie</Button> */}
-              </>
-            )}
-
-            {currentStep === 2 && (
-              <div className="w-full h-full grid grid-rows-[6fr_1fr] gap-4 p-4">
-                {/* VIDEO PREVIEW */}
-                <div className="flex items-center justify-center rounded-lg border bg-black overflow-hidden">
-                  {videoURL ? (
-                    <video
-                      src={videoURL}
-                      controls
-                      className="w-full h-full object-cover"
-                    />
-                  ) : videoStream ? (
-                    <video
-                      ref={videoPreviewRef}
-                      autoPlay
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-4 ">
-                      <Video className="size-10 text-white" />
-                      <Button variant="outline" onClick={openVideoCamera}>
-                        Open Camera
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* ACTIONS */}
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-3">
-                    {/* RECORD BUTTON */}
-                    {!videoURL && videoStream && !isRecording && (
-                      <Button variant="outline" onClick={startRecording}>
-                        Record 10s
-                      </Button>
-                    )}
-
-                    {/* RECORDING STATE */}
-                    {isRecording && (
-                      <>
-                        <Button variant="destructive" disabled>
-                          ● Recording {recordingTime}s
-                        </Button>
-
-                        <Button variant="outline" onClick={exitRecording}>
-                          Exit Recording
-                        </Button>
-                      </>
-                    )}
-
-                    {/* RETAKE */}
-                    {videoURL && (
                       <Button
-                        variant="outline"
-                        onClick={() => {
-                          URL.revokeObjectURL(videoURL);
-                          setVideoURL(null);
-                          setVideoBlob(null);
-                        }}
+                        onClick={() => setCurrentStep(3)}
+                        disabled={!videoBlob}
                       >
-                        Retake
+                        Next <ChevronRight className="size-5" />
                       </Button>
-                    )}
-
-                    {/* CLOSE CAMERA */}
-                    {videoStream && !isRecording && (
-                      <Button variant="outline" onClick={stopVideoCamera}>
-                        Close Camera
-                      </Button>
-                    )}
-
-                    {/* UPLOAD VIDEO */}
-                    <input
-                      ref={videoInputRef}
-                      type="file"
-                      accept="video/*"
-                      hidden
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleVideoUpload(file);
-                        e.target.value = "";
-                      }}
-                    />
-
-                    <Button
-                      variant="outline"
-                      onClick={() => videoInputRef.current?.click()}
-                      disabled={isRecording || videoStream}
-                    >
-                      Upload Video
-                    </Button>
+                    </div>
                   </div>
+                )}
 
-                  <Button
-                    onClick={() => setCurrentStep(3)}
-                    disabled={!videoBlob}
-                  >
-                    Next <ChevronRight className="size-5" />
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* {currentStep === 2 && (
+                {/* {currentStep === 2 && (
               <>
                 <Video className="h-12 w-12 text-muted-foreground" />
                 <p className="text-lg font-medium">Record 10s Video</p>
@@ -541,23 +618,98 @@ export default function ScreeningPage() {
               </>
             )} */}
 
-            {currentStep === 3 && (
-              <>
-                <Upload className="h-12 w-12 text-muted-foreground" />
-                <p className="text-lg font-medium">Upload EEG CSV File</p>
-                <Button onClick={() => setCurrentStep(4)}>
-                  Upload EEG File
-                </Button>
-              </>
+                {currentStep === 3 && (
+                  <div className="w-full h-full grid grid-rows-[6fr_1fr] gap-4 p-4">
+                    {/* DROPBOX AREA (same as image/video preview box) */}
+                    <div
+                      onClick={() => eegInputRef.current?.click()}
+                      className={clsx(
+                        "flex flex-col items-center justify-center rounded-lg border-2 border-dashed cursor-pointer transition",
+                        eegFile
+                          ? "border-green-500 bg-green-500/5"
+                          : "border-muted-foreground/40 hover:border-primary",
+                      )}
+                    >
+                      <Upload className="size-10 text-muted-foreground mb-3" />
+
+                      {eegFile ? (
+                        <>
+                          <p className="text-sm font-medium text-foreground">
+                            {eegFile.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            File ready for submission
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium">
+                            Click or drag EEG CSV file here
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Only .csv files are supported
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* ACTION ROW (same alignment as others) */}
+                    <div className="flex items-center justify-between ">
+                      <div className="flex items-center justify-start gap-x-2">
+                        <Button
+                          className={"flex justify-center items-center"}
+                          onClick={() => {
+                            setCurrentStep(currentStep - 1);
+                          }}
+                        >
+                          <ChevronLeft className="size-4"></ChevronLeft>
+                          Previous
+                        </Button>
+
+                        {eegFile && (
+                          <Button
+                            variant="outline"
+                            onClick={() => setEegFile(null)}
+                          >
+                            Remove File
+                          </Button>
+                        )}
+                      </div>
+
+                      <Button
+                        onClick={() => setCurrentStep(4)}
+                        disabled={!eegFile}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+
+                    {/* HIDDEN INPUT */}
+                    <input
+                      ref={eegInputRef}
+                      type="file"
+                      accept=".csv"
+                      hidden
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleEEGUpload(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </div>
+                )}
+              </Card>
+            ) : (
+              // FINAL RESULT VIEW
+              <div className="h-full flex items-center justify-center">
+                <h1 className="text-4xl font-bold tracking-wide">
+                  RESULT IS HERE
+                </h1>
+              </div>
             )}
-          </Card>
-        ) : (
-          // FINAL RESULT VIEW
-          <div className="h-full flex items-center justify-center">
-            <h1 className="text-4xl font-bold tracking-wide">RESULT IS HERE</h1>
-          </div>
-        )}
-      </main>
+          </main>
+        </>
+      )}
     </div>
   );
 }

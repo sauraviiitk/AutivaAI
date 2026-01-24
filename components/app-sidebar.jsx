@@ -11,7 +11,7 @@ import {
   Map,
   PieChart,
   Settings2,
-  SquareTerminal,
+  ScanFace,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -52,22 +52,22 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Screening",
       url: "#",
-      icon: SquareTerminal,
+      icon: ScanFace,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Start Assessment",
+          url: "/dashboard/screening",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "My Reports",
+          url: "/dashboard/reports",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Tips & Advice",
+          url: "/dashboard/tips",
         },
       ],
     },
