@@ -3,6 +3,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 import clsx from "clsx";
 import {
   Upload,
@@ -66,6 +67,60 @@ export default function ScreeningPage() {
     videoBlob,
     eegFile,
   };
+
+  const userId = "0a5e7cfa-3a3a-4f4b-b3dc-f5e8a1717423";
+
+  const [recordCount, setRecordCount] = useState(100);
+
+  async function uploadFile(url, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || `Upload Failed at ${url}`);
+    }
+
+    return data.key;
+  }
+
+  async function fetchResult() {
+    try {
+      if (!photoBlob || !videoBlob || !eegFile) {
+        toast.error("First upload all required files");
+        return;
+      }
+      const res = await fetch(`/api/get-count?userId=${userId}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error("Something Went Wrong");
+        console.error("Error at /get-count ");
+        return;
+      }
+
+      setRecordCount(data.count);
+
+      const videoKey = await uploadFile("/api/upload/video", videoBlob);
+      alert(videoKey);
+      const imageKey = await uploadFile("/api/upload/image", photoBlob);
+      alert(imageKey);
+      const eegKey = await uploadFile("/api/upload/eeg", eegFile);
+      alert(eegKey);
+    } catch (err) {
+      toast.error(`${err.message}`);
+      console.error("Error at /get-count :", err.message);
+      return;
+    }
+  }
+
+  const eegProps = { fetchResult, ...screeningProps };
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] gap-6  ">
@@ -137,15 +192,22 @@ export default function ScreeningPage() {
                 )}
 
                 {currentStep === 3 && (
-                  <ScreeningEeg {...screeningProps}></ScreeningEeg>
+                  <ScreeningEeg {...eegProps}></ScreeningEeg>
                 )}
               </Card>
             ) : (
               // FINAL RESULT VIEW
               <div className="h-full flex items-center justify-center">
                 <h1 className="text-4xl font-bold tracking-wide">
-                  RESULT IS HERE
+                  RESULT IS HERE {recordCount}
                 </h1>
+                <Button
+                  onClick={() => {
+                    fetchResult();
+                  }}
+                >
+                  Submit
+                </Button>
               </div>
             )}
           </main>

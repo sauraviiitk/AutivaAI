@@ -1,6 +1,7 @@
 "client side";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "sonner";
 import {
   SidebarInset,
   SidebarProvider,
@@ -43,7 +44,10 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex flex-1 flex-col  ">{children}</main>
+        <main className="flex flex-1 flex-col  ">
+          {children}
+          <Toaster richColors position="bottom-right" />
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

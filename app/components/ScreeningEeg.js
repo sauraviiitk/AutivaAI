@@ -14,6 +14,7 @@ import {
 import clsx from "clsx";
 
 const ScreeningEeg = ({
+  fetchResult,
   currentStep,
   setCurrentStep,
   setVideoBlob,
@@ -95,7 +96,13 @@ const ScreeningEeg = ({
           )}
         </div>
 
-        <Button onClick={() => setCurrentStep(4)} disabled={!eegFile}>
+        <Button
+          onClick={() => {
+            setCurrentStep(4);
+            // fetchResult();
+          }}
+          disabled={!eegFile}
+        >
           Submit
         </Button>
       </div>

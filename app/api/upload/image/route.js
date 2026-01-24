@@ -6,13 +6,18 @@ export async function POST(req) {
     const form = await req.formData();
     const file = form.get("file");
 
-    const key = `images/${crypto.randomUUID()}.jpg`;
+    const key = `${crypto.randomUUID()}.jpg`;
 
-    await supabase.storage
+    const { data, error } = await supabase.storage
       .from("images")
       .upload(key, file, { contentType: file.type });
 
-    return NextResponse.json({ sucess: true, key: key });
+    if (error) {
+      console.log("SUPABASE UPLOAD ERROR:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, key: data.path });
   } catch (err) {
     console.error("Image Upload Error: ", err);
     return Response.json(
