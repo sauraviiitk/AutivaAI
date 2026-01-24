@@ -24,7 +24,7 @@ const ScreeningHero = ({ setCurrentStep }) => {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                  NeuroLensAI • Assessment Portal
+                  Autiva-AI• Assessment Portal
                 </span>
 
                 <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full border bg-muted/40 text-muted-foreground">
