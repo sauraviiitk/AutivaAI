@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -85,8 +86,8 @@ const ScreeningVideo = ({
       clearInterval(recordingTimerRef.current);
       const blob = new Blob(chunks, { type: "video/webm" });
 
-      if (blob.size > 50 * 1024 * 1024) {
-        alert("Video must be under 50MB");
+      if (blob.size > 30 * 1024 * 1024) {
+        toast.info("Image too large. Max size is 30MB");
         setIsRecording(false);
         return;
       }
@@ -143,8 +144,8 @@ const ScreeningVideo = ({
     if (!file) return;
     if (!file.type.startsWith("video/")) return;
 
-    if (file.size > 50 * 1024 * 1024) {
-      alert("Max 50MB allowed");
+    if (file.size > 30 * 1024 * 1024) {
+      toast.info("Image too large. Max size is 30MB");
       return;
     }
 

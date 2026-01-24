@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -68,6 +69,10 @@ const ScreeningImage = ({
 
     canvas.toBlob((blob) => {
       if (!blob) return;
+      if (blob.size > 5 * 1024 * 1024) {
+        toast.info("Image too large. Max size is 5MB");
+        return;
+      }
       setPhotoBlob(blob);
       setPhotoURL(URL.createObjectURL(blob));
       console.log(blob);
@@ -80,7 +85,7 @@ const ScreeningImage = ({
     if (!file) return;
     if (!file.type.startsWith("image/")) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert("Max 5MB allowed");
+      toast.info("Image too large. Max size is 5MB");
       return;
     }
 

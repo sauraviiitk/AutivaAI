@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-
+import { toast } from "sonner";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
   Upload,
@@ -35,6 +35,11 @@ const ScreeningEeg = ({
 
     if (!file.name.endsWith(".csv")) {
       alert("Only CSV files are allowed");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.info("Image too large. Max size is 10MB");
       return;
     }
 
