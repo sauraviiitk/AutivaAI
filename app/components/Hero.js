@@ -109,7 +109,7 @@ export default function Hero() {
               ref={headingRef}
               className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 leading-[1.1] mb-4 xs:mb-5 sm:mb-6 md:mb-6"
             >
-              NeuroLensAI
+              AutivaAI
             </h1>
 
             {/* Tagline */}

@@ -68,7 +68,7 @@ export default function SignupPage() {
   };
 
   return (
-    <AuthCard subtitle="Create your NeuroLensAI account in seconds">
+    <AuthCard subtitle="Create your AutivaAI account in seconds">
       {/* Error Alert */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">

@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "NeuroLensAI - Early Signals. Better Outcomes.",
+  title: "AutivaAI- Early Signals. Better Outcomes.",
   description:
     "AI-powered early autism screening and clinician decision support designed to improve developmental outcomes through early intervention.",
   viewport: {

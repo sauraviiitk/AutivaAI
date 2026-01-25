@@ -119,7 +119,7 @@ function VerifyEmailPage() {
               <p className="text-sm text-slate-500">
                 If you continue to experience issues,{" "}
                 <Link
-                  href="mailto:support@neurolensai.com"
+                  href="mailto:support@autivaai.com"
                   className="text-[var( --color-accent)]/80 font-semibold text-[var( --color-accent)]"
                 >
                   contact support

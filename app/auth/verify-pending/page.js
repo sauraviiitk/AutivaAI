@@ -54,7 +54,7 @@ function VerifyPendingPage() {
               1
             </span>
             <p className="text-sm text-slate-700">
-              Check your inbox for an email from NeuroLensAI
+              Check your inbox for an email from AutivaAI
             </p>
           </div>
           <div className="flex gap-3">

@@ -54,7 +54,7 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthCard subtitle="Secure access to your NeuroLensAI account">
+    <AuthCard subtitle="Secure access to your AutivaAI account">
       {/* Error Alert */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">

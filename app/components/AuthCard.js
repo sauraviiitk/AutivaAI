@@ -13,7 +13,7 @@ export default function AuthCard({ children, title, subtitle }) {
           {/* Header */}
           <div className="mb-4 text-center">
             <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">
-              Welcome to NeuroLensAI
+              Welcome to AutivaAI
             </h1>
             <p className="text-xs md:text-base text-slate-600">{subtitle}</p>
           </div>
