@@ -5,8 +5,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail, ArrowRight, Clock } from "lucide-react";
 import AuthCard from "@/app/components/AuthCard";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
-export default function VerifyPendingPage() {
+export default function Page() {
+  return (
+    <Suspense fallback={<Loader2 className="h-10 w-10 animate-spin" />}>
+      <VerifyPendingPage />
+    </Suspense>
+  );
+}
+
+function VerifyPendingPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email");
@@ -28,7 +38,7 @@ export default function VerifyPendingPage() {
           </h2>
           {email && (
             <p className="text-slate-600">
-              We've sent a verification link to{" "}
+              We have sent a verification link to{" "}
               <span className="font-semibold text-slate-900">{email}</span>
             </p>
           )}
@@ -52,7 +62,7 @@ export default function VerifyPendingPage() {
               2
             </span>
             <p className="text-sm text-slate-700">
-              Click "Verify Email Address" in the email
+              Click {"Verify Email Address"} in the email
             </p>
           </div>
           <div className="flex gap-3">
@@ -76,7 +86,7 @@ export default function VerifyPendingPage() {
         {/* Resend Button (disabled for now) */}
         <div className="text-center space-y-3">
           <p className="text-sm text-slate-600">
-            Didn't receive the email?{" "}
+            {"Didn'"} receive the email?{" "}
             <button className="text-[var(--color-accent)]/80 font-semibold hover:text-[var(--color-accent)]  hover:underline">
               Resend verification link
             </button>

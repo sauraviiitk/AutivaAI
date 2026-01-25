@@ -6,8 +6,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Loader } from "lucide-react";
 import AuthCard from "@/app/components/AuthCard";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
-export default function VerifyEmailPage() {
+export default function Page() {
+  return (
+    <Suspense fallback={<Loader2 className="h-10 w-10 animate-spin" />}>
+      <VerifyEmailPage />
+    </Suspense>
+  );
+}
+
+function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
