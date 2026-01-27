@@ -35,19 +35,16 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      name: "DestinyDriver",
+      github: "DestinyDriver",
     },
     {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
+      name: "Adi13apr",
+      github: "adi13apr",
     },
     {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
+      name: "Sauraviiitk",
+      github: "sauraviiitk",
     },
   ],
   navMain: [
