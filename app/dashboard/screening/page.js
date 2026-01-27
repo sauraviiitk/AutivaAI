@@ -10,6 +10,8 @@ import ScreeningHero from "@/app/components/ScreeningHero";
 import ScreeningImage from "@/app/components/ScreeningImage";
 import ScreeningVideo from "@/app/components/ScreeningVideo";
 import ScreeningEeg from "@/app/components/ScreeningEeg";
+import SubmissionProgress from "@/app/components/SubmissionProgress";
+import ProgressCard from "@/app/components/ProgressCard";
 
 const steps = [
   {
@@ -53,6 +55,7 @@ export default function ScreeningPage() {
     video: "idle",
     image: "idle",
     eeg: "idle",
+    analysis: "idle",
   });
   const [errorStep, setErrorStep] = useState(null); // "getCount" | "video" | "image" | "eeg"
 
@@ -84,99 +87,107 @@ export default function ScreeningPage() {
 
   const userId = "0a5e7cfa-3a3a-4f4b-b3dc-f5e8a1717423";
 
-  const [recordCount, setRecordCount] = useState(100);
+  const [recordCount, setRecordCount] = useState(-1);
 
-  async function uploadFile(url, file) {
-    const formData = new FormData();
-    formData.append("file", file);
+  async function runGetCount() {
+    setProgress((p) => ({ ...p, getCount: "loading" }));
 
-    const res = await fetch(url, {
-      method: "POST",
-      body: formData,
-    });
-
+    const res = await fetch(`/api/get-count?userId=${userId}`);
     const data = await res.json();
 
     if (!res.ok) {
-      if (url === "/api/upload/video") {
-        setProgress((p) => ({ ...p, video: "error" }));
-        setErrorStep("video");
-      } else if (url === "/api/upload/eeg") {
-        setProgress((p) => ({ ...p, eeg: "error" }));
-        setErrorStep("eeg");
-      } else {
-        setProgress((p) => ({ ...p, image: "error" }));
-        setErrorStep("image");
-      }
-      throw new Error(data.error || `Upload Failed at ${url}`);
+      setProgress((p) => ({ ...p, getCount: "error" }));
+      setErrorStep("getCount");
+      throw new Error(data?.error || "Get count failed");
     }
 
-    if (url === "/api/upload/video") {
-      setProgress((p) => ({ ...p, video: "success" }));
-      // setErrorStep("video");
-    } else if (url === "/api/upload/eeg") {
-      setProgress((p) => ({ ...p, eeg: "error" }));
-      setErrorStep("eeg");
-    } else {
-      setProgress((p) => ({ ...p, image: "success" }));
-      // setErrorStep("image");
-    }
-
-    return data.key;
+    setRecordCount(data.count);
+    setProgress((p) => ({ ...p, getCount: "success" }));
   }
 
-  async function fetchResult() {
+  async function uploadFile(url, file) {
+    try {
+      const formData = new FormData();
+      const filename =
+        url.split("/")[3] === "video"
+          ? "video.webm"
+          : url.split("/")[3] === "image"
+            ? "photo.png"
+            : "eeg.csv";
+      formData.append("file", file, filename);
+
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setProgress((p) => ({ ...p, [url.split("/")[3]]: "error" }));
+        setErrorStep(`${url.split("/")[3]}`);
+        throw new Error(data.error || `Upload Failed at ${url}`);
+      }
+      return data.key;
+    } catch (err) {
+      setProgress((p) => ({ ...p, [url.split("/")[3]]: "error" }));
+      setErrorStep(`${url.split("/")[3]}`);
+      throw new Error(data.error || `Upload Failed at ${url}`);
+    }
+  }
+
+  async function runVideoUpload() {
+    setProgress((p) => ({ ...p, video: "loading" }));
+    const key = await uploadFile("/api/upload/video", videoBlob);
+    setProgress((p) => ({ ...p, video: "success" }));
+    return key;
+  }
+
+  async function runImageUpload() {
+    setProgress((p) => ({ ...p, image: "loading" }));
+    const key = await uploadFile("/api/upload/image", photoBlob);
+    setProgress((p) => ({ ...p, image: "success" }));
+    return key;
+  }
+
+  async function runEegUpload() {
+    setProgress((p) => ({ ...p, eeg: "loading" }));
+    const key = await uploadFile("/api/upload/eeg", eegFile);
+    setProgress((p) => ({ ...p, eeg: "success" }));
+    return key;
+  }
+
+  async function fetchResult(startFrom = "getCount") {
     try {
       if (!photoBlob || !videoBlob || !eegFile) {
         toast.error("First upload all required files");
         return;
       }
-      setCurrentStep(4);
 
+      setCurrentStep(4);
       setLoading(true);
       setErrorStep(null);
-      setProgress({
-        getCount: "loading",
-        video: "idle",
-        image: "idle",
-        eeg: "idle",
-      });
-      const res = await fetch(`/api/get-count?userId=${userId}`);
-      const data = await res.json();
 
-      if (!res.ok) {
-        setProgress((p) => ({ ...p, getCount: "error" }));
-        setErrorStep("getCount");
-        throw new Error(data?.error || "Get count failed");
+      const stages = ["getCount", "video", "image", "eeg", "analysis"];
+      const startIndex = stages.indexOf(startFrom);
+
+      const keys = { video_key: null, image_key: null, eeg_key: null };
+
+      for (let i = startIndex; i < stages.length; i++) {
+        const stage = stages[i];
+
+        if (stage === "getCount") await runGetCount();
+        if (stage === "video") keys.video_key = await runVideoUpload();
+        if (stage === "image") keys.image_key = await runImageUpload();
+        if (stage === "eeg") keys.eeg_key = await runEegUpload();
+        if (stage === "analysis") continue;
       }
-
-      setRecordCount(data.count);
-      setProgress((p) => ({ ...p, getCount: "success" }));
-
-      setProgress((p) => ({ ...p, video: "loading" }));
-      const videoKey = await uploadFile("/api/upload/video", videoBlob);
-      setProgress((p) => ({ ...p, video: "success" }));
-      alert(videoKey);
-
-      setProgress((p) => ({ ...p, image: "loading" }));
-      const imageKey = await uploadFile("/api/upload/image", photoBlob);
-      setProgress((p) => ({ ...p, image: "success" }));
-      alert(imageKey);
-
-      setProgress((p) => ({ ...p, eeg: "loading" }));
-      const eegKey = await uploadFile("/api/upload/eeg", eegFile);
-      setProgress((p) => ({ ...p, eeg: "success" }));
-      alert(eegKey);
 
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      toast.error(`${err.message}`);
-      toast.error("Something went Wrong.");
-      console.error("Error at /get-count :", err.message);
-      return;
+      toast.error("Something Went Wrong !!");
+      console.error("Submission error:", err);
     }
   }
+
+  function clearBlob() {}
 
   const eegProps = { fetchResult, ...screeningProps };
 
@@ -256,70 +267,17 @@ export default function ScreeningPage() {
             ) : (
               <Card className="h-full w-full flex flex-col items-center justify-center gap-6 p-6">
                 {loading || errorStep ? (
-                  <>
-                    {/* Loader */}
-                    <div className="flex flex-col items-center gap-3">
-                      <Loader2 className="h-10 w-10 animate-spin" />
-                      <p className="text-sm text-muted-foreground">
-                        Uploading your screening files...
-                      </p>
-                    </div>
-
-                    {/* Progress Box */}
-                    <div className="w-full max-w-md rounded-xl border bg-muted/30 p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Get Count</span>
-                        <StatusIcon status={progress.getCount} />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Upload Video</span>
-                        <StatusIcon status={progress.video} />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Upload Image</span>
-                        <StatusIcon status={progress.image} />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Upload EEG CSV</span>
-                        <StatusIcon status={progress.eeg} />
-                      </div>
-
-                      {/* Retry Button (only if error happened) */}
-                      {errorStep && (
-                        <Button
-                          variant="outline"
-                          className="w-full mt-2"
-                          onClick={fetchResult}
-                        >
-                          <RefreshCcw className="h-4 w-4 mr-2" />
-                          Retry Failed Step
-                        </Button>
-                      )}
-                    </div>
-
-                    {errorStep && (
-                      <Button
-                        onClick={() => {
-                          setCurrentStep(0);
-                        }}
-                      >
-                        Retry
-                      </Button>
-                    )}
-                  </>
+                  <SubmissionProgress
+                    {...{
+                      StatusIcon,
+                      fetchResult,
+                      progress,
+                      errorStep,
+                      setCurrentStep,
+                    }}
+                  ></SubmissionProgress>
                 ) : (
-                  // ✅ After finished show result card
-                  <div className="text-center">
-                    <h1 className="text-4xl font-bold tracking-wide">
-                      RESULT IS HERE {recordCount}
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                      (empty result card for now)
-                    </p>
-                  </div>
+                  <ProgressCard></ProgressCard>
                 )}
               </Card>
             )}

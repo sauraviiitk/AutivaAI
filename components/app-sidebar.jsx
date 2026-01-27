@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+// "use client";
+import { useEffect, useState } from "react";
 import {
   AudioWaveform,
   BookOpen,
@@ -12,6 +14,8 @@ import {
   PieChart,
   Settings2,
   ScanFace,
+  Home,
+  HeartHandshake,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -49,6 +53,30 @@ const data = {
   ],
   navMain: [
     {
+      title: "Home",
+      url: "#",
+      icon: Home,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+
+    {
       title: "Screening",
       url: "#",
       icon: ScanFace,
@@ -69,9 +97,9 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Therapy",
       url: "#",
-      icon: Bot,
+      icon: HeartHandshake,
       items: [
         {
           title: "Genesis",
@@ -87,29 +115,7 @@ const data = {
         },
       ],
     },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
+
     {
       title: "Settings",
       url: "#",
@@ -154,6 +160,14 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("autiva-user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -161,10 +175,10 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

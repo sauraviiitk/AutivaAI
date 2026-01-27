@@ -40,6 +40,14 @@ export default function LoginPage() {
 
       if (response.ok) {
         setSuccess("Login successful! Redirecting...");
+        localStorage.setItem(
+          "autiva-user",
+          JSON.stringify({
+            name: "Divyansh Sahu",
+            email: "divyansh@autiva.ai",
+            avatar: "/avatars/user.png",
+          }),
+        );
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
