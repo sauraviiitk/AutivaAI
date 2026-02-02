@@ -1,5 +1,5 @@
 import React from "react";
-import EmotionGame from "@/app/components/games/EmotionGame_test";
+import EmotionGame from "@/app/components/games/EmotionGame";
 
 const page = () => {
   return (
